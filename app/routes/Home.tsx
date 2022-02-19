@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useTransform } from 'framer-motion'
-import { Guerilla } from "~/components";
+import { Guerrilla } from "~/components";
+import { SlideShow } from '~/components/SlideShow';
 import { useResize } from "~/hooks/useResize";
 
 // const Span = (text: string) => (
@@ -37,8 +38,11 @@ const Home = () => {
     <>
       <div className="flex justify-center items-center flex-col">
         <div ref={ref} className="flex flex-col items-center md:w-1/2 h-full">
-          <div className="my-3">
-            <Guerilla />
+          <div className="mx-3 my-3 overflow-hidden">
+            <Guerrilla />
+          </div>
+          <div className="overflow-hidden p-0 m-0 flex justify-center items-center">
+            <SlideShow />
           </div>
           <p className="text-white text-center my-2 sm:mx-1">
             <motion.span

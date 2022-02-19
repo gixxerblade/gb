@@ -1,6 +1,6 @@
 import styles from "./tailwind.css";
 import { LinksFunction, LiveReload, Meta, MetaFunction, Outlet } from "remix";
-import { Nav } from './Nav'
+import { Nav } from './components/Navigation/Navigation'
 import { Layout } from "./Layout";
 import { Document } from "./Document";
 

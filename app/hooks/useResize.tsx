@@ -6,7 +6,7 @@ interface Size {
 }
 
 export const useResize = <T extends HTMLElement = HTMLDivElement>() => {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<T>(null)
   const [width, setWidth] = useState<Size['width']>(0);
   const [height, setHeight] = useState<Size['height']>(0);
 
