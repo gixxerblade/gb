@@ -1,38 +1,20 @@
 import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { useLoaderData } from 'remix';
 import { Guerrilla } from "~/components";
 import { SlideShow } from '~/components/SlideShow';
+import { IMAGES } from '~/constants/images';
 import { useResize } from "~/hooks/useResize";
 
-// const Span = (text: string) => (
-//   <div>
-//   <motion.span
-//     className="text-white"
-//     style={{
+export async function loader() {
+  return await fetch('../constants/images')
+}
 
-//     }}
-//   >
-//     {text}
-//   </motion.span>
-//   <motion.span
-//     className="text[#ff00c1]"
-//     style={{
-//       position: 'absolute'
-//     }}
-//   >
-//     {text}
-//   </motion.span>
-//   <motion.span
-//     style={{
-//       position: 'absolute'
-//     }}
-//   >
-//     {text}
-//   </motion.span>
-//   </div>
-// )
+
 const Home = () => {
   // const ref = useRef<HTMLDivElement>(null)
   const { ref, width, height } = useResize()
+  const images = useLoaderData();
+  console.log(loader)
 
   return (
     <>
@@ -41,8 +23,8 @@ const Home = () => {
           <div className="mx-3 my-3 overflow-hidden">
             <Guerrilla />
           </div>
-          <div className="overflow-hidden p-0 m-0 flex justify-center items-center">
-            <SlideShow />
+          <div className="w-screen relative flex justify-center items-center">
+            <SlideShow images={IMAGES} />
           </div>
           <p className="text-white text-center my-2 sm:mx-1">
             <motion.span

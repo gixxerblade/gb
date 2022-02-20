@@ -1,85 +1,80 @@
-import { useState, useEffect, MutableRefObject, RefObject } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { images } from "~/constants/images";
-import { wrap } from "@popmotion/popcorn";
-import { useResize } from "~/hooks/useResize";
+import { createRef, FC, Key, useEffect, useState } from "react";
+import { IMAGES } from "~/constants/images";
 
 export const SlideShow = () => {
-  const { width, ref } = useResize();
-  ;
-  const variants = {
-    enter: (direction: number) => {
-      return {
-        x: direction > 0 ? width : -width,
-        opacity: 1
-      };
-    },
-    center: {
-      zIndex: 0,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => {
-      return {
-        zIndex: 1,
-        x: direction < 0 ? width : -width,
-        opacity: 0
-      };
+  const [currentImage, setCurrentImage] = useState(0);
+  const refs = IMAGES.reduce((acc: Record<number, any>, _val, i) => {
+    acc[i] = createRef();
+    return acc
+  }, {})
+
+  const scrollToImage = (idx: number) => {
+    setCurrentImage(idx);
+    refs[idx].current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start'
+    })
+  }
+  const totalImages = IMAGES.length;
+
+  const nextImage = () => {
+    if (currentImage >= totalImages - 1) {
+      scrollToImage(0)
+    } else {
+      scrollToImage(currentImage + 1)
     }
-  };
-  
-  const [[page, direction], setPage] = useState([0, 0]);
-  const paginate = (newDirection: number) => {
-    setPage([page + newDirection, newDirection]);
-  };
-  const [seconds, setSeconds] = useState(0);
-
-  const imageIndex = wrap(0, images.length, page);
-
-  const swipeConfidenceThreshold = 10000;
-  const swipePower = (offset: number, velocity: number) => {
-    return Math.abs(offset) * velocity;
   }
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        // setSeconds(seconds => seconds + 1);
-        paginate(1);
-      }, 3000);
-      return () => clearInterval(interval);
-    }, [paginate]);
+  const previousImage = () => {
+    if (currentImage === 0) {
+      scrollToImage(totalImages - 1)
+    }
+    else {
+      scrollToImage(currentImage - 1)
+    }
+  }
 
-    return (
-      <div ref={ref} className="relative flex justify-center items-center">
-        <AnimatePresence initial={true} custom={direction}>
-          <motion.img
-            className="w-fit"
-            key={page}
-            src={images[imageIndex]}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { duration: 1 },
-              opacity: { duration: 2 },
-            }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={1}
-            onDragEnd={(e, { offset, velocity }) => {
-              const swipe = swipePower(offset.x, velocity.x);
+  const arrowStyle =
+  "absolute text-white text-2xl z-10 bg-black h-10 w-10 rounded-full opacity-75 flex items-center justify-center";
+
+  const sliderControl = (isLeft: boolean = false) => (
+    <button
+      type="button"
+      onClick={isLeft ? previousImage : nextImage}
+      className={`${arrowStyle} ${isLeft ? "left-2" : "right-2"}`}
+      style={{ top: "40%" }}
+    >
+      <span role="img" aria-label={`Arrow ${isLeft ? "left" : "right"}`}>
+        {isLeft ? "◀" : "▶"}
+      </span>
+    </button>
+  );
+  /**
+   * .carousel {
+  display: inline-flex;
+  overflow-x: hidden;
+  scroll-snap-type: x mandatory;
   
-              if (swipe < -swipeConfidenceThreshold) {
-                paginate(1);
-              } else if (swipe > swipeConfidenceThreshold) {
-                paginate(-1);
-              }
-            }}
-          />
-        </AnimatePresence>
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+
+  return (
+    <div className="w-screen flex justify-center">
+      <div className="p-12 flex justify-center w-screen md:w-1/2 items-center">
+        <div className="relative w-full">
+          <div className="inline-flex overflow-x-hidden snap-x">
+            {sliderControl(true)}
+            {IMAGES.map((img: { url: string; placeholder: string }, i: number) => (
+              <div className="w-full flex-shrink-0" key={img.url} ref={refs[i]}>
+                <img src={img.url} className="w-full object-contain" alt={img.placeholder} />
+              </div>
+            ))}
+            {sliderControl()}
+          </div>
+        </div>
       </div>
-    );
-  
-  }
+    </div>
+    )
+};
