@@ -1,22 +1,21 @@
-import { createRef, useState } from "react";
-import { IMAGES } from "../constants/images";
+import Image from "next/image";
+import { FC, useState } from "react";
+import useSlideshowImages from "../hooks/useSlideshowImages";
 
-export const SlideShow = () => {
+export const SlideShow: FC = () => {
+  const { images, loading, error, refs } = useSlideshowImages();
   const [currentImage, setCurrentImage] = useState(0);
-  const refs = IMAGES.reduce((acc: Record<number, any>, _val, i) => {
-    acc[i] = createRef();
-    return acc;
-  }, {});
+
+  const totalImages = images?.length || Number(0);
 
   const scrollToImage = (idx: number) => {
     setCurrentImage(idx);
-    refs[idx].current.scrollIntoView({
+    refs[idx].current!.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
       inline: "start",
     });
   };
-  const totalImages = IMAGES.length;
 
   const nextImage = () => {
     if (currentImage >= totalImages - 1) {
@@ -65,21 +64,23 @@ export const SlideShow = () => {
         <div className="relative w-full">
           <div className="inline-flex overflow-x-hidden snap-x">
             {sliderControl(true)}
-            {IMAGES.map(
-              (img: { url: string; placeholder: string }, i: number) => (
+            {images &&
+              refs &&
+              images.map((img, i) => (
                 <div
                   className="w-full flex-shrink-0"
                   key={img.url}
                   ref={refs[i]}
                 >
-                  <img
+                  <Image
                     src={img.url}
                     className="w-full object-contain"
-                    alt={img.placeholder}
+                    alt={img.public_id}
+                    width={img.width}
+                    height={img.height}
                   />
                 </div>
-              )
-            )}
+              ))}
             {sliderControl()}
           </div>
         </div>
